@@ -2,13 +2,15 @@ from dotenv import load_dotenv
 from icalendar import Calendar
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import requests
 import uvicorn
 
 
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 load_dotenv()
 
@@ -20,10 +22,10 @@ VIENNA = ZoneInfo("Europe/Vienna")
 def get_range() -> tuple[int, int]:
     now = datetime.now(VIENNA)
     year = now.year
-    if now.month >= 8:  # WS: August bis Februar
+    if now.month >= 8:
         begin = datetime(year, 8, 1, tzinfo=VIENNA)
         end = datetime(year + 1, 2, 28, tzinfo=VIENNA)
-    else:  # SS: Februar bis Juli
+    else:
         begin = datetime(year, 2, 1, tzinfo=VIENNA)
         end = datetime(year, 7, 31, 23, 59, 59, tzinfo=VIENNA)
     return int(begin.timestamp()), int(end.timestamp())
@@ -38,7 +40,8 @@ def get_ical():
     with open("cache.ics") as f:
         return Calendar.from_ical(f.read())
 
-
+def manual_cache_refresh():
+    get_ical_cis()
 
 def get_json_events(from_ts: datetime, to_ts: datetime):
     cal = get_ical()
@@ -49,6 +52,8 @@ def get_json_events(from_ts: datetime, to_ts: datetime):
         if from_ts <= start < to_ts:
             events.append({
                 "summary": str(event.get("SUMMARY")),
+                "class": str(event.get("DESCRIPTION")).split("\n")[0],
+                "lecturer": str(event.get("DESCRIPTION")).split("\n")[1],
                 "location": str(event.get("LOCATION", "")),
                 "start": start.isoformat(),
                 "end": event.get("DTEND").dt.isoformat(),
@@ -66,4 +71,4 @@ def get_events(from_ts: int, to_ts: int):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=6000, log_level="info")
+    uvicorn.run("main:app", port=6060, log_level="info")
