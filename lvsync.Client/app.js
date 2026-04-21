@@ -169,7 +169,7 @@ function setTrack(y, animated) {
 }
 
 function panelH() {
-  return outCurr.offsetHeight;
+  return wrap.clientHeight;
 }
 
 async function render() {
@@ -182,8 +182,11 @@ async function render() {
   outPrev.innerHTML = prev;
   outCurr.innerHTML = curr;
   outNext.innerHTML = next;
+  const h = panelH() + 'px';
+  outPrev.style.height = h;
+  outCurr.style.height = h;
+  outNext.style.height = h;
   setTrack(-panelH(), false);
-  wrap.style.height = panelH() + 'px';
   updateTimeIndicator();
 }
 
