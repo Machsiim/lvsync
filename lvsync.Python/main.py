@@ -5,14 +5,13 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from pathlib import Path
 import os
 import requests
+import asyncio
 import uvicorn
 
-
-app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 load_dotenv()
 
@@ -20,6 +19,25 @@ USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 
 VIENNA = ZoneInfo("Europe/Vienna")
+
+async def cache_loop():
+    while True:
+        try:
+            get_ical_cis()
+            print("Cache refreshed")
+        except Exception as e:
+            print(f"Cache refresh failed: {e}")
+        await asyncio.sleep(1800)  
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(cache_loop())
+    yield
+    task.cancel()
+
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 
 def get_range() -> tuple[int, int]:
     now = datetime.now(VIENNA)
@@ -68,7 +86,6 @@ def get_json_events(from_ts: datetime, to_ts: datetime):
 @app.get("/events")
 def get_events(from_ts: int, to_ts: int):
     global VIENNA
-    print(get_json_events(datetime.fromtimestamp(from_ts, tz=VIENNA), datetime.fromtimestamp(to_ts, tz=VIENNA)))
     return get_json_events(datetime.fromtimestamp(from_ts, tz=VIENNA), datetime.fromtimestamp(to_ts, tz=VIENNA))
 
 
