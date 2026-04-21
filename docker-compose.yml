@@ -1,0 +1,8 @@
+services:
+  lvsync:
+    build: .
+    ports:
+      - "6060:6060"
+    env_file:
+      - .env
+    restart: unless-stopped

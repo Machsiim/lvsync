@@ -52,7 +52,7 @@ function matchSlot(starts, date) {
 async function buildHTML(offset) {
   const { from, to, date: weekStart } = getWeekBounds(offset);
   try {
-    const res = await fetch(`http://localhost:6060/events?from_ts=${from}&to_ts=${to}`);
+    const res = await fetch(`/events?from_ts=${from}&to_ts=${to}`);
     const events = await res.json();
 
     const days = Array.from({ length: 7 }, (_, i) => {

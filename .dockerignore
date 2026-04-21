@@ -1,0 +1,7 @@
+.env
+.git
+__pycache__
+*.pyc
+lvsync.Python/venv
+lvsync.Python/cache.ics
+lvsync.Python/update_logs

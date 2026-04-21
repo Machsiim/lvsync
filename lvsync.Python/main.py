@@ -4,6 +4,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 import os
 import requests
 import uvicorn
@@ -69,6 +71,9 @@ def get_events(from_ts: int, to_ts: int):
     print(get_json_events(datetime.fromtimestamp(from_ts, tz=VIENNA), datetime.fromtimestamp(to_ts, tz=VIENNA)))
     return get_json_events(datetime.fromtimestamp(from_ts, tz=VIENNA), datetime.fromtimestamp(to_ts, tz=VIENNA))
 
+
+CLIENT_DIR = Path(__file__).resolve().parent.parent / "lvsync.Client"
+app.mount("/", StaticFiles(directory=str(CLIENT_DIR), html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=6060, log_level="info")
