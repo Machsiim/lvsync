@@ -195,28 +195,50 @@ render();
 
 let touchStartY = null;
 let baseY = 0;
+let touchMode = null; // 'swipe' (week nav) or 'scroll' (panel scroll)
 
 document.addEventListener('touchstart', e => {
   touchStartY = e.touches[0].clientY;
-  baseY = -panelH();
-  setTrack(baseY, false);
+  const panel = e.target.closest('#out-prev, #out-curr, #out-next');
+  if (panel && panel.scrollHeight > panel.clientHeight) {
+    touchMode = 'scroll';
+  } else {
+    touchMode = 'swipe';
+    baseY = -panelH();
+    setTrack(baseY, false);
+  }
 }, { passive: true });
 
 document.addEventListener('touchmove', e => {
   if (touchStartY === null) return;
-  setTrack(baseY + e.touches[0].clientY - touchStartY, false);
-}, { passive: true });
+  const dy = e.touches[0].clientY - touchStartY;
+
+  if (touchMode === 'scroll') {
+    const panel = e.target.closest('#out-prev, #out-curr, #out-next');
+    if (panel) {
+      const atTop = panel.scrollTop <= 0;
+      const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 1;
+      if ((atTop && dy > 0) || (atBottom && dy < 0)) {
+        e.preventDefault();
+      }
+    }
+  } else {
+    e.preventDefault();
+    setTrack(baseY + dy, false);
+  }
+}, { passive: false });
 
 document.addEventListener('touchend', e => {
   if (touchStartY === null) return;
   const dy = e.changedTouches[0].clientY - touchStartY;
   touchStartY = null;
 
-  if (Math.abs(dy) > 60) {
+  if (touchMode === 'swipe' && Math.abs(dy) > 60) {
     const dir = dy > 0 ? -1 : 1;
     setTrack(baseY - dir * panelH(), true);
     setTimeout(() => { weekOffset += dir; render(); }, 285);
-  } else {
+  } else if (touchMode === 'swipe') {
     setTrack(baseY, true);
   }
+  touchMode = null;
 }, { passive: true });
