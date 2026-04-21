@@ -52,7 +52,10 @@ def get_range() -> tuple[int, int]:
 
 def get_ical_cis():
     begin, end = get_range()
-    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid=if25b115&begin={begin}&ende={end}&format=ical&version=2&target=ical', auth=(USERNAME, PASSWORD))
+    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid={USERNAME}&begin={begin}&ende={end}&format=ical&version=2&target=ical', 
+                            auth=(USERNAME, PASSWORD),
+                            headers={"User-Agent": "lvsync/1.0 (contact: if25b115@technikum-wien.at, https://github.com/Machsiim/lvsync)"})
+    
     with open("cache.ics", "wb") as f:
         f.write(response.content)
 
