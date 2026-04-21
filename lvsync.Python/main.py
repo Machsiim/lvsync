@@ -15,8 +15,8 @@ import uvicorn
 
 load_dotenv()
 
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
+CIS_USER = os.getenv("CIS_USER")
+CIS_PASS = os.getenv("CIS_PASS")
 
 VIENNA = ZoneInfo("Europe/Vienna")
 
@@ -52,8 +52,8 @@ def get_range() -> tuple[int, int]:
 
 def get_ical_cis():
     begin, end = get_range()
-    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid={USERNAME}&begin={begin}&ende={end}&format=ical&version=2&target=ical', 
-                            auth=(USERNAME, PASSWORD),
+    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid={CIS_USER}&begin={begin}&ende={end}&format=ical&version=2&target=ical', 
+                            auth=(CIS_USER, CIS_PASS),
                             headers={"User-Agent": "lvsync/1.0 (contact: if25b115@technikum-wien.at, https://github.com/Machsiim/lvsync)"})
     
     with open("cache.ics", "wb") as f:
