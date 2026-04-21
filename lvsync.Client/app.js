@@ -95,7 +95,7 @@ async function buildHTML(offset) {
       const isToday = days[dayIdx].key === today;
       html += `<div class="cell event-cell" style="grid-row:${startSlot + 2}/span ${span};grid-column:${dayIdx + 2}">
         <div class="event${isToday ? ' today' : ''}">
-          <div class="event-abbr">${e.summary.slice(0, 3).toUpperCase()}</div>
+          <div class="event-abbr">${e.summary.slice(0, 3).toUpperCase()}${e.location && e.location.toLowerCase().includes('webinar') ? '<span class="webinar-icon material-symbols-outlined">videocam</span>' : ''}</div>
           <div class="event-time">${SLOTS[startSlot][0]}<br>${SLOTS[lastSlot][1]}</div>
         </div>
       </div>`;
