@@ -281,3 +281,40 @@ document.addEventListener('touchend', e => {
   }
   touchMode = null;
 }, { passive: true });
+
+// --- Log view ---
+const logView = document.getElementById('log-view');
+const logList = document.getElementById('log-list');
+
+async function loadLogs() {
+  const res = await fetch('/logs');
+  const logs = await res.json();
+  logList.innerHTML = logs.length === 0
+    ? '<div style="color:#555;text-align:center;margin-top:2rem">no pulls yet</div>'
+    : logs.slice().reverse().map(l => {
+        const d = new Date(l.time);
+        const time = d.toLocaleString('de-AT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        return `<div class="log-entry">
+          <span class="log-time">${time}</span>
+          <span class="log-status ${l.changed ? 'changed' : 'unchanged'}">${l.changed ? 'changed' : 'no change'}</span>
+        </div>`;
+      }).join('');
+}
+
+document.getElementById('log-btn').addEventListener('click', () => {
+  logView.classList.remove('hidden');
+  loadLogs();
+});
+
+document.getElementById('log-back').addEventListener('click', () => {
+  logView.classList.add('hidden');
+});
+
+document.getElementById('log-refresh').addEventListener('click', async () => {
+  const btn = document.getElementById('log-refresh');
+  btn.classList.add('spinning');
+  await fetch('/refresh', { method: 'POST' });
+  btn.classList.remove('spinning');
+  loadLogs();
+  render();
+});

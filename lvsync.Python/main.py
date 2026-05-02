@@ -8,6 +8,8 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from pathlib import Path
 import os
+import json
+import hashlib
 import requests
 import asyncio
 import uvicorn
@@ -19,15 +21,40 @@ CIS_USER = os.getenv("CIS_USER")
 CIS_PASS = os.getenv("CIS_PASS")
 
 VIENNA = ZoneInfo("Europe/Vienna")
+PULL_LOG_FILE = Path("pull_log.json")
+
+def load_pull_log():
+    if PULL_LOG_FILE.exists():
+        return json.loads(PULL_LOG_FILE.read_text())
+    return []
+
+def save_pull_log(log):
+    PULL_LOG_FILE.write_text(json.dumps(log[-10:]))
+
+def get_cache_hash():
+    if Path("cache.ics").exists():
+        return hashlib.md5(Path("cache.ics").read_bytes()).hexdigest()
+    return None
+
+def pull_and_log():
+    old_hash = get_cache_hash()
+    get_ical_cis()
+    new_hash = get_cache_hash()
+    log = load_pull_log()
+    log.append({
+        "time": datetime.now(VIENNA).isoformat(),
+        "changed": old_hash != new_hash,
+    })
+    save_pull_log(log)
 
 async def cache_loop():
     while True:
         try:
-            get_ical_cis()
+            pull_and_log()
             print("Cache refreshed")
         except Exception as e:
             print(f"Cache refresh failed: {e}")
-        await asyncio.sleep(1800)  
+        await asyncio.sleep(1800)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,19 +79,16 @@ def get_range() -> tuple[int, int]:
 
 def get_ical_cis():
     begin, end = get_range()
-    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid={CIS_USER}&begin={begin}&ende={end}&format=ical&version=2&target=ical', 
+    response = requests.get(f'https://cis.technikum-wien.at/cis/private/lvplan/stpl_kalender.php?type=student&pers_uid={CIS_USER}&begin={begin}&ende={end}&format=ical&version=2&target=ical',
                             auth=(CIS_USER, CIS_PASS),
                             headers={"User-Agent": "lvsync/1.0 (contact: if25b115@technikum-wien.at, https://github.com/Machsiim/lvsync)"})
-    
+
     with open("cache.ics", "wb") as f:
         f.write(response.content)
 
 def get_ical():
     with open("cache.ics") as f:
         return Calendar.from_ical(f.read())
-
-def manual_cache_refresh():
-    get_ical_cis()
 
 def get_json_events(from_ts: datetime, to_ts: datetime):
     cal = get_ical()
@@ -84,12 +108,20 @@ def get_json_events(from_ts: datetime, to_ts: datetime):
 
     return events
 
-                
 
 @app.get("/events")
 def get_events(from_ts: int, to_ts: int):
     global VIENNA
     return get_json_events(datetime.fromtimestamp(from_ts, tz=VIENNA), datetime.fromtimestamp(to_ts, tz=VIENNA))
+
+@app.get("/logs")
+def get_logs():
+    return load_pull_log()
+
+@app.post("/refresh")
+def refresh():
+    pull_and_log()
+    return {"status": "ok"}
 
 
 CLIENT_DIR = Path(__file__).resolve().parent.parent / "lvsync.Client"
