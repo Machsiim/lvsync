@@ -1,0 +1,26 @@
+name: Deploy LVsync
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+
+      - name: Deploy to leviathan-prod
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: maxim
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/lvsync
+            git pull
+            docker-compose up -d --build

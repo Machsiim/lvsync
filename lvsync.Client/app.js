@@ -97,6 +97,7 @@ async function buildHTML(offset) {
         <div class="event${isToday ? ' today' : ''}">
           <div class="event-abbr">${e.summary.slice(0, 3).toUpperCase()}${e.location && e.location.toLowerCase().includes('webinar') ? '<span class="webinar-icon material-symbols-outlined">videocam</span>' : ''}</div>
           <div class="event-time">${SLOTS[startSlot][0]}<br>${SLOTS[lastSlot][1]}</div>
+          ${e.location ? `<div class="event-location">${e.location}</div>` : ''}
         </div>
       </div>`;
     }

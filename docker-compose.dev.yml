@@ -1,0 +1,11 @@
+services:
+  lvsync:
+    build: .
+    ports:
+      - "6060:6060"
+    env_file:
+      - .env
+    volumes:
+      - ./lvsync.Python:/app/lvsync.Python
+      - ./lvsync.Client:/app/lvsync.Client
+    command: uvicorn main:app --host 0.0.0.0 --port 6060 --reload
