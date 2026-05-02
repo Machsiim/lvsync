@@ -93,11 +93,10 @@ async function buildHTML(offset) {
     for (const { e, dayIdx, startSlot, lastSlot } of placed) {
       const span = lastSlot - startSlot + 1;
       const isToday = days[dayIdx].key === today;
-      html += `<div class="cell event-cell" style="grid-row:${startSlot + 2}/span ${span};grid-column:${dayIdx + 2}">
+      html += `<div class="cell event-cell" style="grid-row:${startSlot + 2}/span ${span};grid-column:${dayIdx + 2}" data-event='${JSON.stringify(e).replace(/'/g, "&#39;")}'>
         <div class="event${isToday ? ' today' : ''}">
           <div class="event-abbr">${e.summary.slice(0, 3).toUpperCase()}${e.location && e.location.toLowerCase().includes('webinar') ? '<span class="webinar-icon material-symbols-outlined">videocam</span>' : ''}</div>
           <div class="event-time">${SLOTS[startSlot][0]}<br>${SLOTS[lastSlot][1]}</div>
-          ${e.location ? `<div class="event-location">${e.location}</div>` : ''}
         </div>
       </div>`;
     }
@@ -155,6 +154,45 @@ function updateTimeIndicator() {
   line.style.width = colWidth + 'px';
   timetable.appendChild(line);
 }
+
+function showDetail(e) {
+  const start = new Date(e.start);
+  const end = new Date(e.end);
+  const fmt = d => d.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+  const dateFmt = start.toLocaleDateString('de-AT', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const modal = document.getElementById('detail-modal');
+  modal.querySelector('.detail-title').textContent = e.summary;
+  modal.querySelector('.detail-class').textContent = e.class || '';
+  modal.querySelector('.detail-lecturer').textContent = e.lecturer || '';
+  modal.querySelector('.detail-date').textContent = dateFmt;
+  modal.querySelector('.detail-time').textContent = `${fmt(start)} – ${fmt(end)}`;
+  modal.querySelector('.detail-location').textContent = e.location || '–';
+  modal.classList.add('visible');
+}
+
+let tapStart = null;
+document.addEventListener('touchstart', e => {
+  tapStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (!tapStart) return;
+  const dx = e.changedTouches[0].clientX - tapStart.x;
+  const dy = e.changedTouches[0].clientY - tapStart.y;
+  if (Math.abs(dx) > 10 || Math.abs(dy) > 10) return;
+
+  const modal = document.getElementById('detail-modal');
+  if (modal.classList.contains('visible')) {
+    if (!e.target.closest('.detail-content') || e.target.closest('.detail-close')) {
+      modal.classList.remove('visible');
+    }
+    return;
+  }
+
+  const cell = e.target.closest('.event-cell[data-event]');
+  if (cell) showDetail(JSON.parse(cell.dataset.event));
+}, { passive: true });
 
 let weekOffset = 0;
 
