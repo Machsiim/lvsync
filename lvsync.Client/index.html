@@ -50,6 +50,23 @@
       <div class="detail-date"></div>
       <div class="detail-time"></div>
       <div class="detail-location"></div>
+      <button class="detail-delete" style="display:none">termin löschen</button>
+    </div>
+  </div>
+  <div id="add-modal">
+    <div class="add-content">
+      <div class="add-header">neuer termin</div>
+      <input id="add-title" type="text" placeholder="titel" autocomplete="off">
+      <input id="add-location" type="text" placeholder="ort (optional)" autocomplete="off">
+      <div class="add-slots">
+        <label>von<input type="text" id="add-start-time" placeholder="HH:MM" inputmode="numeric"></label>
+        <label>bis<input type="text" id="add-end-time" placeholder="HH:MM" inputmode="numeric"></label>
+      </div>
+      <div class="add-date-display"></div>
+      <div class="add-actions">
+        <button class="add-cancel">abbrechen</button>
+        <button class="add-save">speichern</button>
+      </div>
     </div>
   </div>
   <script src="app.js"></script>
