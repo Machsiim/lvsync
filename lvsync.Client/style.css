@@ -263,6 +263,7 @@ button {
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  overflow: hidden;
 }
 
 #log-view.hidden {
@@ -297,6 +298,7 @@ button {
 
 #log-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -332,6 +334,208 @@ button {
 .log-status.unchanged {
   background: #1a1a2a;
   color: #888;
+}
+
+#log-footer {
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
+}
+
+#theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #aaa;
+  cursor: pointer;
+}
+
+#theme-switch {
+  display: none;
+}
+
+.toggle-track {
+  width: 42px;
+  height: 24px;
+  background: #333;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.25s ease;
+}
+
+#theme-switch:checked + .toggle-track {
+  background: #fff;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #666;
+  border-radius: 50%;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+#theme-switch:checked + .toggle-track .toggle-thumb {
+  transform: translateX(18px);
+  background: #000;
+}
+
+/* Light mode */
+body.light {
+  background: #f5f2eb;
+  color: #2a2a2a;
+}
+
+body.light .timetable {
+  border-color: #d4cfbf;
+}
+
+body.light .cell {
+  border-color: #d4cfbf;
+}
+
+body.light .cell.time-label {
+  color: #888;
+}
+
+body.light .cell.day-header {
+  color: #777;
+}
+
+body.light .cell.day-header.today {
+  color: #2d7a3a;
+}
+
+body.light .event {
+  background: #c8e6c9;
+  border-color: #81c784;
+}
+
+body.light .event.today {
+  background: #a5d6a7;
+  border-color: #4caf50;
+}
+
+body.light .event-abbr {
+  color: #2e7d32;
+}
+
+body.light .event-time {
+  color: #5a8a5e;
+}
+
+body.light .col-highlight {
+  background: rgba(76, 175, 80, 0.08);
+}
+
+body.light .time-line {
+  background: #43a047;
+}
+
+body.light .time-line::before {
+  background: #43a047;
+}
+
+body.light #detail-modal {
+  background: rgba(245, 242, 235, 0.5);
+}
+
+body.light .detail-content {
+  background: rgba(245, 242, 235, 0.95);
+  border-color: #c8c3b5;
+}
+
+body.light .detail-title {
+  color: #2e7d32;
+}
+
+body.light .detail-class,
+body.light .detail-lecturer {
+  color: #666;
+}
+
+body.light .detail-date,
+body.light .detail-time {
+  color: #888;
+}
+
+body.light .detail-location {
+  color: #444;
+  border-color: #d4cfbf;
+}
+
+body.light #log-view {
+  background: #f5f2eb;
+}
+
+body.light #log-header h2 {
+  color: #2a2a2a;
+}
+
+body.light #log-back,
+body.light #log-refresh {
+  color: #666;
+}
+
+body.light .log-entry {
+  background: #ece9e0;
+  border-color: #d4cfbf;
+}
+
+body.light .log-time {
+  color: #666;
+}
+
+body.light .log-status.changed {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+body.light .log-status.unchanged {
+  background: #e8e5dc;
+  color: #999;
+}
+
+body.light #theme-toggle {
+  background: #ece9e0;
+  border-color: #d4cfbf;
+  color: #666;
+}
+
+body.light .toggle-track {
+  background: #c8c3b5;
+}
+
+body.light #theme-switch:checked + .toggle-track {
+  background: #66bb6a;
+}
+
+body.light .toggle-thumb {
+  background: #f5f2eb;
+}
+
+body.light #theme-switch:checked + .toggle-track .toggle-thumb {
+  background: #fff;
+}
+
+body.light #log-btn {
+  color: #999;
+}
+
+body.light #week-label {
+  color: #555;
+}
+
+body.light #log-footer {
+  border-color: #d4cfbf;
 }
 
 .error {

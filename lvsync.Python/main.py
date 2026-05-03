@@ -29,7 +29,7 @@ def load_pull_log():
     return []
 
 def save_pull_log(log):
-    PULL_LOG_FILE.write_text(json.dumps(log[-10:]))
+    PULL_LOG_FILE.write_text(json.dumps(log[-50:]))
 
 def get_cache_hash():
     if Path("cache.ics").exists():

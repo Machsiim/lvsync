@@ -310,6 +310,16 @@ document.getElementById('log-back').addEventListener('click', () => {
   logView.classList.add('hidden');
 });
 
+document.getElementById('theme-switch').addEventListener('change', e => {
+  document.body.classList.toggle('light', e.target.checked);
+  localStorage.setItem('theme', e.target.checked ? 'light' : 'dark');
+});
+
+if (localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light');
+  document.getElementById('theme-switch').checked = true;
+}
+
 document.getElementById('log-refresh').addEventListener('click', async () => {
   const btn = document.getElementById('log-refresh');
   btn.classList.add('spinning');
